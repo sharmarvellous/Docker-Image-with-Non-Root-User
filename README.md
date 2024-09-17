@@ -53,8 +53,56 @@ The Docker image can be built using the following command:
 docker build -t testing:v1 -f dockerfile7 .
 ```
 
+## Build Process:
+
+Each step in the Dockerfile is executed sequentially, creating layers for each instruction. This includes downloading the ZIP file from GitHub, extracting it, setting up the non-root user, and preparing Apache to serve the content.
+
+---
+
+## Running the Container
+Once the image is built, the container can be run with the following command:
+
 ### Explanation:
 
 - `docker build`: Builds a Docker image from the Dockerfile.
-- `-t testing:v1`: Tags the image as testing:v1, making it easier to reference later.
-- `-f dockerfile7`: Specifies dockerfile7 as the Dockerfile to use for building the image.
+- `-t testing:v1`: Tags the image as `testing:v1`, making it easier to reference later.
+- `-f dockerfile7`: Specifies `dockerfile7` as the Dockerfile to use for building the image.
+
+```
+docker run -d -p 9090:80 --name testc testing:v1
+```
+
+### Explanation:
+- `docker run`: Starts a new container from the testing:v1 image.
+- `-d`: Runs the container in detached mode (background).
+- `-p 9090:80`: Maps port `9090` on your local machine to port `80` in the container, where Apache is running.
+- `--name testc`: Assigns the name testc to the container.
+
+### Outcome:
+The container starts running, and Apache serves the content at `http://localhost:9090`. You can now access the web page, which includes the files that were downloaded and extracted from the GitHub repository.
+
+---
+
+## Verifying the Files in the Running Container
+
+After starting the container, you can inspect the files inside it by executing:
+
+```
+docker exec -it testc bash
+```
+
+### Explanation:
+- `docker exec`: Allows you to execute commands inside a running container.
+- `-it testc bash`: Opens an interactive shell inside the testc container.
+
+### Checking the Files:
+Once inside the container, you can list the files in the `/var/www/html/` directory with:
+
+```
+ls /var/www/html/
+```
+
+The expected output should show the files extracted from the ZIP file:
+```
+README.md  index.html  scripts.js  styles.css  testing-main
+```
