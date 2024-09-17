@@ -3,11 +3,30 @@ Building a Docker Image with Non-Root User Permissions: A Step-by-Step Guide
 
 This guide focuses on creating a secure Docker image using non-root user permissions during the image build process. Running services in Docker containers as a non-root user is a best practice, as it enhances security by limiting the scope of potential damage if the container is compromised. In this guide, we will walk through building a Docker image with proper user management, downloading content from GitHub, setting permissions, and serving content via Apache.
 
+Checkout the [Full Article](https://medium.com/@sharmarvellous/building-a-docker-image-with-non-root-user-permissions-a-step-by-step-guide-2b4c50c95dfb)
+
 ---
 
 ## Dockerfile Breakdown
 
 The Dockerfile defines the instructions to create the Docker image. Below are the key concepts:
+
+```
+FROM ubuntu
+RUN apt update && apt install apache2 unzip -y
+LABEL maintained-by=Vish
+LABEL vendor=vish
+ENV var=testing
+WORKDIR /var/www/html/
+ADD https://github.com/sharmarvellous/$var/archive/refs/heads/main.zip ./code.zip
+RUN unzip code.zip && mv $var-main/* .
+COPY sample-web ./
+RUN useradd nonroot && chown nonroot:nonroot /var/www/html/ -R
+USER nonroot
+RUN rm code.zip
+USER root
+CMD ["apache2ctl", "-D", "FOREGROUND"]
+```
 
 ### Base Image:
 - `FROM ubuntu`: Specifies that the Docker image will use Ubuntu as its base.
